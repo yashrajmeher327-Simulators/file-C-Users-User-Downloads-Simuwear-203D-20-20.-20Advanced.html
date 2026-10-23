@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SimuWear3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Instrument+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9EBEF;--sf:#fff;--ink:#0D0F14;--mute:#5B616E;--v:#1F4BFF;--m:#C6F432;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D0F14;--sf:#171A21;--ink:#F2F3F5;--mute:#A3A9B5;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0D0F14;--sf:#171A21;--ink:#F2F3F5;--mute:#A3A9B5;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.45 "Instrument Sans",system-ui,sans-serif;padding-bottom:88px}
+body[data-tab=try]{--tab:var(--v);--on:#fff}body[data-tab=sty]{--tab:var(--ink);--on:var(--bg)}body[data-tab=lst]{--tab:var(--m);--on:#0D0F14}
+main{max-width:520px;margin:0 auto;padding:16px;zoom:var(--z,1)}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.05}
+h1{font-size:40px;font-weight:800;letter-spacing:-.02em}h2{font-size:22px;font-weight:800;margin:18px 0 6px}h3{font-size:18px;font-weight:800}
+p{margin:0}.mute{color:var(--mute);font-size:14px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,label:focus-within{outline:3px solid var(--tab);outline-offset:3px}
+.btn{background:var(--tab);color:var(--on);border:2.5px solid var(--ink);border-radius:14px;padding:10px 16px;font-weight:700;box-shadow:3px 3px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btn.alt{background:var(--sf);color:var(--ink)}.btn.sm{padding:7px 12px;font-size:14px;border-radius:12px}
+.stage{perspective:900px;position:relative;aspect-ratio:3/4;width:100%;background:var(--sf) center/cover no-repeat;border:3px solid var(--ink);border-radius:26px;box-shadow:6px 6px 0 var(--tab);overflow:hidden;touch-action:none;margin:16px 0 14px}
+.stage .mq{position:absolute;inset:0;width:100%;height:100%}
+.it{filter:drop-shadow(0 10px 8px rgba(0,0,0,.28));position:absolute;aspect-ratio:1;cursor:grab;touch-action:none}
+.it svg{width:100%;height:100%;display:block;overflow:visible}
+.it.on{outline:3px dashed var(--ink);outline-offset:4px;border-radius:6px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rail{display:flex;gap:10px;overflow-x:auto;padding:2px 4px 10px 2px}
+.g{flex:0 0 auto;width:82px;color:#0D0F14;border:2.5px solid var(--ink);border-radius:16px;padding:8px 4px;text-align:center;font-size:12px;font-weight:700;box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.g svg,.g img{width:40px;height:40px;display:block;margin:0 auto 3px;object-fit:contain}
+.g.add{background:var(--sf);color:var(--ink);border-style:dashed}
+.panel{background:var(--sf);border:2.5px solid var(--ink);border-radius:20px;padding:14px;margin-top:6px;box-shadow:4px 4px 0 var(--tab)}
+.panel label{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;margin:8px 0}
+.panel input[type=range]{flex:1;accent-color:var(--tab)}
+.sw{width:32px;height:32px;border-radius:50%;border:2.5px solid var(--ink);padding:0}
+.sw.on{box-shadow:0 0 0 3px var(--sf),0 0 0 6px var(--ink)}
+.card{background:var(--sf);border:2.5px solid var(--ink);border-radius:20px;padding:14px;margin-top:14px;box-shadow:4px 4px 0 var(--c,var(--tab))}
+.sp{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.av{width:46px;height:46px;border-radius:50%;background:var(--c);color:#0D0F14;border:2.5px solid var(--ink);display:grid;place-items:center;font-weight:800;flex:none}
+.slots{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pill{background:var(--m);color:#0D0F14;border:2px solid var(--ink);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+.li{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:2px dashed var(--ink)}
+.li .dot{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--bg);border:2px solid var(--ink);flex:none}
+.li .dot svg{width:30px;height:30px}
+.li a{color:var(--ink);font-weight:700;font-size:14px}
+.tot{display:flex;justify-content:space-between;font:800 22px "Bricolage Grotesque",system-ui,sans-serif;padding-top:12px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--sf);border-top:3px solid var(--ink);padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:center;z-index:5}
+nav button{flex:1;max-width:160px;border:2.5px solid transparent;background:transparent;border-radius:14px;padding:10px 4px;font-weight:800;color:var(--mute)}
+nav button[aria-current="page"]{border-color:var(--ink);color:#fff;box-shadow:3px 3px 0 var(--ink)}
+nav [data-v=try][aria-current]{background:var(--v)}nav [data-v=sty][aria-current]{background:var(--ink);color:var(--bg)}nav [data-v=lst][aria-current]{background:var(--m);color:#0D0F14}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:700;z-index:9}
+.th{border:2.5px solid var(--ink);border-radius:14px;padding:0;overflow:hidden;background:var(--sf);box-shadow:3px 3px 0 var(--ink);cursor:pointer}
+.th img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}.th.sm{flex:0 0 auto;width:64px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.gimg{width:100%;aspect-ratio:3/4;object-fit:cover;border:3px solid var(--ink);border-radius:26px;box-shadow:6px 6px 0 var(--tab);display:block;touch-action:pan-y}
+body[data-tab=gal]{--tab:#8A909C;--on:#0D0F14}
+nav [data-v=gal][aria-current]{background:#8A909C;color:#0D0F14}
+details.set{background:var(--sf);border:2.5px solid var(--ink);border-radius:16px;padding:10px 14px;margin-bottom:14px}
+details.set summary{font-weight:800;cursor:pointer}
+.chip{border:2.5px solid var(--ink);background:var(--sf);color:var(--ink);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
+.chip[aria-pressed=true]{background:var(--tab);color:var(--on)}
+textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:2.5px solid var(--ink);border-radius:14px;padding:10px;min-height:64px;margin-top:8px}
+:root[data-hc]{--mute:var(--ink)}
+html{scroll-behavior:smooth}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.stage{user-select:none;-webkit-user-select:none}
+.it{will-change:transform}
+.stage.dragging .it{filter:none}
+.hint{position:absolute;left:0;right:0;bottom:14px;padding:0 16px;text-align:center;font-weight:700;font-size:14px;color:var(--mute);pointer-events:none}
+section{animation:fade .2s ease-out}
+.it.pop{animation:pop .22s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;scale:.7}to{opacity:1;scale:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+[hidden]{display:none!important}
+</style>
+</head>
+<body data-tab="try">
+<main>
+<details class="set"><summary>Settings: who’s it for, text size, look</summary>
+ <p class="mute" style="margin-top:10px">Who is this for?</p>
+ <div class="row" id="ages" style="margin:6px 0"></div>
+ <p id="minor" class="mute" hidden>Under 18? A parent or guardian should add photos and book stylist sessions.</p>
+ <p class="mute" style="margin-top:10px">Text size</p>
+ <div class="row" id="zs" style="margin-top:6px"></div>
+ <div class="row" style="margin-top:12px"><button class="chip" id="hc" aria-pressed="false">High contrast</button><button class="chip" id="th">Theme: Auto</button></div>
+</details>
+<section id="v-try">
+  <h1>SimuWear3D</h1>
+  <p class="mute">Try pieces on in 3D. Turn the view, layer outfits, save what fits.</p>
+  <div class="stage" id="stage" aria-label="Try-on canvas">
+    <div class="hint" id="hint">Tap a garment below to start. Drag to move, pinch to resize and rotate.</div>
+    <svg class="mq" id="mq" viewBox="0 0 300 400" aria-hidden="true"><g fill="none" stroke="#8A909C" stroke-opacity=".8" stroke-width="3"><circle cx="150" cy="70" r="34"/><path d="M110 125 Q150 108 190 125 L206 290 L94 290 Z"/><path d="M122 290 L118 395 M178 290 L182 395"/></g></svg>
+  </div>
+  <div class="row">
+    <label class="btn sm" style="cursor:pointer">Add photos<input id="file" type="file" accept="image/*" multiple hidden></label>
+    <button class="btn alt sm" id="nophoto" hidden>Use mannequin</button>
+    <button class="btn alt sm" id="shuf">Surprise me</button>
+    <button class="btn alt sm" id="undo">Undo</button>
+    <button class="btn alt sm" id="clear">Clear</button>
+    <button class="btn sm" id="save" hidden>Download image</button>
+  </div>
+  <p class="mute" style="margin-top:8px">Your photos stay on this device. They aren’t uploaded or saved.</p>
+  <div class="rail" id="pho" hidden style="margin-top:8px"></div>
+  <div class="row" id="bgs" style="margin-top:12px"></div>
+  <label class="mute" style="display:flex;gap:10px;align-items:center;margin-top:14px;font-weight:700">3D turn <input id="ry" type="range" min="-60" max="60" value="0" style="flex:1;accent-color:var(--tab)"></label>
+  <p id="otot" style="font-weight:800;margin-top:8px"></p>
+  <div class="row" style="margin-top:8px"><button class="btn sm" id="togal">Save to gallery</button></div>
+  <h2>Garments</h2>
+  <div class="rail" id="rail"></div>
+  <p class="mute">To add a real piece, photograph it flat on a plain surface. The background is removed on your device.</p>
+  <div class="panel" id="ctl" hidden>
+    <h3 id="ctlname"></h3>
+    <label>Size <input type="range" id="sz" min="18" max="95"></label>
+    <label>Tilt <input type="range" id="rt" min="-90" max="90"></label>
+    <label id="tolrow">Cut-out <input type="range" id="tol" min="10" max="140"></label>
+    <div class="row" id="sws" style="margin:10px 0"></div>
+    <div class="row"><button class="btn sm" id="add">Add to list</button><button class="btn alt sm" id="fw">Bring to front</button><button class="btn alt sm" id="rm">Remove from outfit</button></div>
+  </div>
+</section>
+
+<section id="v-gal" hidden>
+  <h1>Gallery</h1>
+  <p class="mute">Your saved looks. Tap one, then flip through with Next.</p>
+  <div class="grid" id="galgrid"></div>
+  <div id="galview" hidden>
+    <img class="gimg" id="gimg" alt="Saved look" style="margin-top:16px">
+    <div class="row" style="margin:14px 0;justify-content:space-between"><button class="btn alt sm" id="gprev">Previous</button><strong id="gcnt"></strong><button class="btn sm" id="gnext">Next</button></div>
+    <div class="row"><button class="btn alt sm" id="gedit">Edit this look</button><button class="btn alt sm" id="gdl" hidden>Download</button><button class="btn alt sm" id="gdel">Delete</button><button class="btn alt sm" id="gback">All looks</button></div>
+    <p class="mute" style="margin-top:10px">Editing restores the garments, backdrop color, and turn angle. Photo backdrops and your own garment photos aren’t restored.</p>
+  </div>
+</section>
+
+<section id="v-sty" hidden>
+  <h1>Stylists</h1>
+  <p class="mute">Book a 30-minute video session. Attach a look from your gallery and your stylist sends back a shopping list. These are sample profiles.</p>
+  <div class="card" style="--c:#8A909C"><h3>Share a look</h3><p class="mute">Pick a gallery look to send with your booking.</p>
+ <div class="rail" id="sharepick" style="margin-top:8px"></div>
+ <textarea id="note" maxlength="300" placeholder="Occasion, budget, sizes, or anything your stylist should know" aria-label="Note to stylist"></textarea>
+ <label class="mute" id="guardrow" hidden style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:700"><input type="checkbox" id="guard"> A parent or guardian is booking this session</label></div>
+<div id="stylists"></div>
+  <h2>Your sessions</h2>
+  <div id="sessions"></div>
+</section>
+
+<section id="v-lst" hidden>
+  <h1>Shopping list</h1>
+  <p class="mute">Links open the store’s product page. Prices are sample values.</p>
+  <div class="card" id="list"></div>
+</section>
+</main>
+
+<nav>
+  <button data-v="try" aria-current="page">Try on</button>
+  <button data-v="gal">Gallery</button>
+  <button data-v="sty">Stylists</button>
+  <button data-v="lst">List <span id="cnt"></span></button>
+</nav>
+
+<script>
+var G={
+ tee:{n:"Linen tee",p:28,s:"Linen & Co",d:"M30 12L42 8Q50 16 58 8L70 12L90 30L80 42L70 36V90H30V36L20 42L10 30Z"},
+ jacket:{n:"Field jacket",p:96,s:"Northline",d:"M28 10L42 6Q50 14 58 6L72 10L92 32L82 46L72 40V94H28V40L18 46L8 32ZM50 14V94"},
+ dress:{n:"Wrap dress",p:74,s:"Maison Vale",d:"M38 8H62L66 36L84 94H16L34 36Z"},
+ pants:{n:"Straight trousers",p:58,s:"Tailor Row",d:"M30 8H70L74 94H54L50 40L46 94H26Z"},
+ scarf:{n:"Wool scarf",p:32,s:"Linen & Co",d:"M26 10Q50 26 74 10L78 24Q50 42 22 24ZM42 30H58L60 86H40Z"},
+ hoodie:{n:"Hoodie",p:44,s:"Northline",d:"M28 10L40 6Q50 18 60 6L72 10L92 34L82 46L72 40V92H28V40L18 46L8 34ZM40 6Q50 30 60 6"},
+ cardigan:{n:"Soft cardigan",p:62,s:"Maison Vale",d:"M28 10L42 6Q50 14 58 6L72 10L92 32L82 46L72 40V94H54V30L50 24L46 30V94H28V40L18 46L8 32Z"},
+ shorts:{n:"Shorts",p:30,s:"Tailor Row",d:"M28 20H72L76 62H54L50 40L46 62H24Z"},
+ skirt:{n:"A-line skirt",p:40,s:"Linen & Co",d:"M34 14H66L84 80H16Z"}
+};
+var AGE={tee:"ktas",jacket:"tas",dress:"ktas",pants:"ktas",scarf:"as",hoodie:"kta",cardigan:"as",shorts:"kta",skirt:"ktas"};
+var COLORS=["#1F4BFF","#C6F432","#0D0F14","#FFFFFF","#8A909C","#D5D8DE","#0B2A99","#3A3F4A"];
+var RB=["#C6F432","#D5D8DE","#FFFFFF","#C6F432","#D5D8DE"];
+var BGS=["#FFFFFF","#C6F432","#1F4BFF","#D5D8DE","#0D0F14","#8A909C"];
+var ST=[
+ {n:"Amara Okoye",f:"Workwear and capsule wardrobes",r:45,a:"as",c:"#C6F432",t:["Tue 6:00 pm","Thu 12:30 pm","Sat 10:00 am"]},
+ {n:"Jun Park",f:"Streetwear and thrift styling",r:35,a:"t",c:"#D5D8DE",t:["Wed 7:00 pm","Fri 5:30 pm","Sun 2:00 pm"]},
+ {n:"Elena Rossi",f:"Weddings and occasion dressing",r:60,a:"tas",c:"#8A909C",t:["Mon 8:00 pm","Thu 6:00 pm","Sat 1:00 pm"]},
+ {n:"Marcus Bell",f:"Kids’ and family styling",r:30,a:"k",c:"#C6F432",t:["Tue 4:30 pm","Thu 5:00 pm","Sun 11:00 am"]},
+ {n:"Priya Nair",f:"Comfort and adaptive clothing",r:40,a:"s",c:"#D5D8DE",t:["Mon 11:00 am","Wed 2:00 pm","Fri 10:30 am"]}
+];
+var S={share:0,photos:[],looks:[],ry:0,items:[],sel:null,list:[],book:[],mine:[]};
+try{S.list=JSON.parse(localStorage.getItem("fr-list")||"[]");S.book=JSON.parse(localStorage.getItem("fr-book")||"[]")}catch(e){}
+function save(){try{localStorage.setItem("fr-list",JSON.stringify(S.list));localStorage.setItem("fr-book",JSON.stringify(S.book))}catch(e){}}
+var $=function(i){return document.getElementById(i)};
+function svg(t,c){return '<svg viewBox="0 0 100 100"><path d="'+G[t].d+'" fill="'+c+'" stroke="rgba(0,0,0,.4)" stroke-width="1.8" stroke-linejoin="round"/></svg>'}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function toast(m){var e=document.createElement("div");e.className="toast";e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},1800)}
+function getM(id){return S.mine.filter(function(m){return m.id===id})[0]}
+function t0(k){return{pants:68,scarf:30,dress:55,shorts:70,skirt:66}[k]||45}
+
+document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){
+ document.querySelectorAll("nav button").forEach(function(x){x.removeAttribute("aria-current")});
+ b.setAttribute("aria-current","page");document.body.dataset.tab=b.dataset.v;
+ ["try","gal","sty","lst"].forEach(function(v){$("v-"+v).hidden=v!==b.dataset.v});window.scrollTo(0,0)}});
+
+/* background removal: flood-fill from the edges, keyed on the corner colour */
+function cut(c0,tol){
+ var w=c0.width,h=c0.height,d=c0.getContext("2d").getImageData(0,0,w,h),a=d.data,b=[0,0,0];
+ [0,(w-1)*4,(h-1)*w*4,((h-1)*w+w-1)*4].forEach(function(i){for(var k=0;k<3;k++)b[k]+=a[i+k]/4});
+ var seen=new Uint8Array(w*h),st=[],p,x,y;
+ function ok(p){var i=p*4,r=a[i]-b[0],g=a[i+1]-b[1],bl=a[i+2]-b[2];return Math.sqrt(r*r+g*g+bl*bl)<tol}
+ for(x=0;x<w;x++)st.push(x,(h-1)*w+x);for(y=0;y<h;y++)st.push(y*w,y*w+w-1);
+ while(st.length){p=st.pop();if(seen[p]||!ok(p))continue;seen[p]=1;a[p*4+3]=0;x=p%w;
+  if(x>0)st.push(p-1);if(x<w-1)st.push(p+1);if(p>=w)st.push(p-w);if(p<w*(h-1))st.push(p+w)}
+ var x0=w,y0=h,x1=0,y1=0;
+ for(p=0;p<w*h;p++)if(a[p*4+3]){x=p%w;y=(p/w)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+ var t=document.createElement("canvas");t.width=w;t.height=h;t.getContext("2d").putImageData(d,0,0);
+ var bw=x1-x0+1,bh=y1-y0+1;if(bw<8||bh<8)return{src:t.toDataURL("image/png"),ar:w/h};
+ var o=document.createElement("canvas");o.width=bw;o.height=bh;o.getContext("2d").drawImage(t,x0,y0,bw,bh,0,0,bw,bh);
+ return{src:o.toDataURL("image/png"),ar:bw/bh}}
+
+function rail(){
+ var h='<label class="g add"><svg viewBox="0 0 100 100"><path d="M50 18V82M18 50H82" stroke="currentColor" stroke-width="10" stroke-linecap="round" fill="none"/></svg>Add garment photo<input id="gfile" type="file" accept="image/*" hidden></label>';
+ h+=S.mine.map(function(m){return '<button class="g" style="background:#fff" data-m="'+m.id+'"><img src="'+m.src+'" alt="">Your piece</button>'}).join("");
+ h+=Object.keys(G).filter(function(k){return CFG.age==="all"||AGE[k].indexOf(CFG.age)>-1}).map(function(k,i){return '<button class="g" style="background:'+RB[i%5]+'" data-k="'+k+'">'+svg(k,"#1F4BFF")+G[k].n+'</button>'}).join("");
+ $("rail").innerHTML=h}
+$("rail").addEventListener("click",function(e){var b=e.target.closest("button.g");if(!b)return;var it;
+ if(b.dataset.k)it={id:Date.now(),t:b.dataset.k,c:COLORS[S.items.length%6],x:50,y:t0(b.dataset.k),s:48,r:0};
+ else it={id:Date.now(),t:"photo",m:+b.dataset.m,c:"#fff",x:50,y:48,s:55,r:0};
+ S.items.push(it);S.sel=it.id;S.pop=it.id;draw()});
+$("rail").addEventListener("change",function(e){if(e.target.id!=="gfile")return;var f=e.target.files[0];if(!f)return;
+ var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){
+  var sc=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement("canvas");
+  c.width=Math.max(8,Math.round(im.width*sc));c.height=Math.max(8,Math.round(im.height*sc));
+  c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+  var o=cut(c,60),m={id:Date.now(),raw:c,tol:60,src:o.src,ar:o.ar};S.mine.push(m);rail();
+  var it={id:Date.now()+1,t:"photo",m:m.id,c:"#fff",x:50,y:48,s:55,r:0};S.items.push(it);S.sel=it.id;draw();toast("Background removed")};
+  im.onerror=function(){toast("That file isn’t an image")};im.src=r.result};r.readAsDataURL(f)});
+
+function draw(){commit();$("hint").hidden=S.items.length>0;
+ var st=$("stage");st.querySelectorAll(".it").forEach(function(n){n.remove()});
+ S.items.forEach(function(it){var d=document.createElement("div");d.className="it"+(it.id===S.sel?" on":"")+(it.id===S.pop?" pop":"");d.dataset.id=it.id;
+  if(it.t==="photo"){var m=getM(it.m);d.style.aspectRatio=m.ar;d.innerHTML='<img src="'+m.src+'" alt="" draggable="false" style="width:100%;height:100%;object-fit:contain;display:block;pointer-events:none">'}
+  else d.innerHTML=svg(it.t,it.c);
+  place(d,it);st.appendChild(d)});S.pop=0;
+ var t=0;S.items.forEach(function(i){if(i.t!=="photo")t+=G[i.t].p});$("otot").textContent=S.items.length?"Outfit total $"+t:"";
+ panel()}
+function place(d,it){d.style.left=it.x+"%";d.style.top=it.y+"%";d.style.width=it.s+"%";d.style.transform="translate(-50%,-50%) rotate("+it.r+"deg) rotateY("+S.ry+"deg)"}
+function cur(){return S.items.filter(function(i){return i.id===S.sel})[0]}
+var drag=null,ptr={},pin=null,raf=0,wt=0,last="[]",hist=[];
+function commit(){var j=JSON.stringify(S.items);if(j!==last){hist.push(last);if(hist.length>40)hist.shift();last=j}}
+function undo(){if(!hist.length){toast("Nothing to undo");return}S.items=JSON.parse(hist.pop());last=JSON.stringify(S.items);if(!cur())S.sel=null;draw()}
+function sched(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;var it=cur(),n=it&&el(it);if(n)place(n,it)})}
+$("stage").addEventListener("pointerdown",function(e){
+ ptr[e.pointerId]={x:e.clientX,y:e.clientY};var ids=Object.keys(ptr),it=cur();
+ if(ids.length===2&&it){var a=ptr[ids[0]],b=ptr[ids[1]];pin={d:Math.hypot(a.x-b.x,a.y-b.y)||1,a:Math.atan2(b.y-a.y,b.x-a.x),s:it.s,r:it.r};drag=null;return}
+ var n=e.target.closest(".it");if(!n){S.sel=null;draw();return}
+ S.sel=+n.dataset.id;it=cur();
+ $("stage").querySelectorAll(".it").forEach(function(x){x.classList.toggle("on",x===n)});panel();
+ drag={it:it,r:$("stage").getBoundingClientRect(),ox:e.clientX,oy:e.clientY,x:it.x,y:it.y};
+ $("stage").classList.add("dragging");n.setPointerCapture(e.pointerId)});
+$("stage").addEventListener("pointermove",function(e){
+ if(ptr[e.pointerId])ptr[e.pointerId]={x:e.clientX,y:e.clientY};
+ var it=cur();
+ if(pin&&it){var ids=Object.keys(ptr);if(ids.length<2)return;var a=ptr[ids[0]],b=ptr[ids[1]];
+  it.s=Math.max(18,Math.min(95,pin.s*Math.hypot(a.x-b.x,a.y-b.y)/pin.d));
+  it.r=Math.max(-90,Math.min(90,pin.r+(Math.atan2(b.y-a.y,b.x-a.x)-pin.a)*180/Math.PI));
+  $("sz").value=it.s;$("rt").value=Math.round(it.r);sched();return}
+ if(!drag)return;
+ drag.it.x=Math.max(0,Math.min(100,drag.x+(e.clientX-drag.ox)/drag.r.width*100));
+ drag.it.y=Math.max(0,Math.min(100,drag.y+(e.clientY-drag.oy)/drag.r.height*100));sched()});
+["pointerup","pointercancel"].forEach(function(t){$("stage").addEventListener(t,function(e){
+ delete ptr[e.pointerId];if(Object.keys(ptr).length<2)pin=null;drag=null;
+ if(!Object.keys(ptr).length){$("stage").classList.remove("dragging");commit()}})});
+$("stage").addEventListener("wheel",function(e){var it=cur();if(!it)return;e.preventDefault();
+ it.s=Math.max(18,Math.min(95,it.s*(e.deltaY<0?1.05:.95)));place(el(it),it);$("sz").value=it.s;clearTimeout(wt);wt=setTimeout(commit,300)},{passive:false});
+document.addEventListener("keydown",function(e){var t=e.target.tagName;if(t==="INPUT"||t==="TEXTAREA"||$("v-try").hidden)return;
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){e.preventDefault();undo();return}
+ var it=cur();if(!it)return;var d=e.shiftKey?5:1,k=e.key,m=true;
+ if(k==="ArrowLeft")it.x-=d;else if(k==="ArrowRight")it.x+=d;else if(k==="ArrowUp")it.y-=d;else if(k==="ArrowDown")it.y+=d;
+ else if(k==="+"||k==="=")it.s=Math.min(95,it.s+2);else if(k==="-")it.s=Math.max(18,it.s-2);
+ else if(k==="Delete"||k==="Backspace"){$("rm").click();return}else m=false;
+ if(m){e.preventDefault();place(el(it),it);$("sz").value=it.s;clearTimeout(wt);wt=setTimeout(commit,300)}});
+
+function panel(){var it=cur();$("ctl").hidden=!it;if(!it)return;var ph=it.t==="photo";
+ $("ctlname").textContent=ph?"Your piece":G[it.t].n+" · $"+G[it.t].p+" at "+G[it.t].s;
+ $("sz").value=it.s;$("rt").value=it.r;$("tolrow").hidden=!ph;$("sws").hidden=ph;if(ph)$("tol").value=getM(it.m).tol;
+ $("sws").innerHTML=COLORS.map(function(c){return '<button class="sw'+(c===it.c?" on":"")+'" style="background:'+c+'" data-c="'+c+'" aria-label="Colour '+c+'"></button>'}).join("")}
+function el(it){return document.querySelector('.it[data-id="'+it.id+'"]')}
+$("sz").oninput=function(){var it=cur();it.s=+this.value;place(el(it),it)};
+$("rt").oninput=function(){var it=cur();it.r=+this.value;place(el(it),it)};
+$("tol").oninput=function(){var m=getM(cur().m);m.tol=+this.value;var o=cut(m.raw,m.tol);m.src=o.src;m.ar=o.ar;draw();rail()};
+["sz","rt","tol"].forEach(function(i){$(i).addEventListener("change",commit)});
+$("undo").onclick=undo;
+$("sws").onclick=function(e){var b=e.target.closest(".sw");if(!b)return;cur().c=b.dataset.c;draw()};
+$("fw").onclick=function(){var i=S.items.indexOf(cur());S.items.push(S.items.splice(i,1)[0]);draw()};
+$("ry").oninput=function(){S.ry=+this.value;S.items.forEach(function(it){var e=el(it);if(e)place(e,it)})};
+$("rm").onclick=function(){S.items=S.items.filter(function(i){return i.id!==S.sel});S.sel=null;draw()};
+$("clear").onclick=function(){S.items=[];S.sel=null;draw()};
+$("add").onclick=function(){var it=cur();S.list.push({id:Date.now(),t:it.t,c:it.c});save();renderList();toast("Added to list")};
+$("shuf").onclick=function(){S.items=[];var pk=function(a){return a[Math.floor(Math.random()*a.length)]};
+ var cs=COLORS.slice(0,6).sort(function(){return Math.random()-.5}),ok=function(a){return a.filter(function(k){return CFG.age==="all"||AGE[k].indexOf(CFG.age)>-1})},
+  ks=Math.random()<.35?["dress"]:[pk(ok(["tee","jacket","hoodie","cardigan"])),pk(ok(["pants","shorts","skirt"]))];
+ if(Math.random()<.5&&ok(["scarf"]).length)ks.push("scarf");
+ ks.forEach(function(k,i){S.items.push({id:Date.now()+i,t:k,c:cs[i],x:50,y:t0(k),s:k==="dress"?60:48,r:0})});S.sel=null;draw()};
+$("bgs").innerHTML=BGS.map(function(c){return '<button class="sw" style="background:'+c+'" data-c="'+c+'" aria-label="Backdrop '+c+'"></button>'}).join("");
+$("bgs").onclick=function(e){var b=e.target.closest(".sw");if(b)$("stage").style.backgroundColor=b.dataset.c};
+$("file").onchange=function(){Array.prototype.slice.call(this.files,0,8).forEach(function(f){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);S.photos.push(c.toDataURL("image/jpeg",.85));if(S.photos.length>8)S.photos.shift();usePhoto(S.photos.length-1)};im.onerror=function(){toast("That file isn’t an image")};im.src=r.result};r.readAsDataURL(f)});this.value=""};
+function usePhoto(i){var src=S.photos[i];$("stage").style.backgroundImage="url("+src+")";$("mq").style.display="none";$("nophoto").hidden=false;var pi=new Image();pi.onload=function(){S.photo=pi};pi.src=src;phos()}
+function phos(){$("pho").hidden=!S.photos.length;$("pho").innerHTML=S.photos.map(function(u,i){return '<button class="th sm" data-i="'+i+'"><img src="'+u+'" alt="Photo '+(i+1)+'"></button>'}).join("")}
+$("pho").onclick=function(e){var b=e.target.closest("button");if(b)usePhoto(+b.dataset.i)};
+$("nophoto").onclick=function(){S.photo=null;$("stage").style.backgroundImage="none";$("mq").style.display="";this.hidden=true};
+
+function renderSty(){
+ $("stylists").innerHTML=ST.map(function(s,i){return '<div class="card" style="--c:'+s.c+'"><div class="sp"><div class="row" style="flex-wrap:nowrap"><div class="av">'+s.n.split(" ").map(function(w){return w[0]}).join("")+'</div><div><h3>'+s.n+'</h3><p class="mute">'+s.f+'</p></div></div><div style="text-align:right;flex:none"><strong>$'+s.r+'</strong>'+(CFG.age!=="all"&&s.a.indexOf(CFG.age)>-1?'<br><span class="pill">Good match</span>':'')+'</div></div>'
+  +'<div class="slots">'+s.t.map(function(t){return '<button class="btn alt sm" data-i="'+i+'" data-t="'+t+'">'+t+'</button>'}).join("")+'</div></div>'}).join("");
+ $("sessions").innerHTML=S.book.length?S.book.map(function(b){return '<div class="card"><div class="sp"><div class="row" style="flex-wrap:nowrap">'+(b.img?'<img src="'+b.img+'" alt="Shared look" style="width:56px;aspect-ratio:3/4;object-fit:cover;border:2px solid var(--ink);border-radius:10px">':'')+'<div><h3>'+esc(b.n)+'</h3><p class="mute">'+esc(b.t)+(b.img?' · look attached':'')+'</p></div></div><span class="pill">Booked</span></div>'+(b.note?'<p class="mute" style="margin-top:8px">'+esc(b.note)+'</p>':'')+'</div>'}).join(""):'<p class="mute">No sessions yet. Pick a time above to book one.</p>'}
+$("stylists").onclick=function(e){var b=e.target.closest("button");if(!b)return;
+ if((CFG.age==="k"||CFG.age==="t")&&!$("guard").checked){toast("A parent or guardian needs to confirm first");return}
+ var lk=S.looks.filter(function(l){return l.id===S.share})[0];
+ S.book.unshift({n:ST[+b.dataset.i].n,t:b.dataset.t,img:lk?lk.img:"",note:$("note").value.slice(0,300)});S.book=S.book.slice(0,8);save();renderSty();
+ toast(lk?"Booked with your look attached":"Session booked")};
+function renderShare(){$("sharepick").innerHTML='<button class="chip" data-i="-1" aria-pressed="'+(!S.share)+'">No look</button>'+S.looks.map(function(l,i){return '<button class="th sm" data-i="'+i+'" aria-label="Look '+(i+1)+'" style="'+(S.share===l.id?"outline:4px solid var(--tab);outline-offset:2px":"")+'"><img src="'+l.img+'" alt="Look '+(i+1)+'"></button>'}).join("")}
+$("sharepick").onclick=function(e){var b=e.target.closest("button");if(!b)return;var i=+b.dataset.i;S.share=i<0?0:S.looks[i].id;renderShare()};
+
+function renderList(){
+ $("cnt").textContent=S.list.length?"("+S.list.length+")":"";
+ if(!S.list.length){$("list").innerHTML='<p class="mute">Nothing here yet. Try something on and tap Add to list.</p>';return}
+ var tot=0;
+ $("list").innerHTML=S.list.map(function(l){var ph=l.t==="photo",g=ph?{n:"Your piece",p:0,s:""}:G[l.t];tot+=g.p;
+  return '<div class="li"><div class="dot">'+(ph?"📷":svg(l.t,l.c))+'</div><div style="flex:1"><h3>'+g.n+'</h3>'+(ph?'<p class="mute">From your closet</p>':'<a href="#" onclick="return false">Shop at '+g.s+'</a>')+'</div><strong>'+(g.p?"$"+g.p:"")+'</strong><button class="btn alt sm" data-d="'+l.id+'" aria-label="Remove '+g.n+'">Remove</button></div>'}).join("")
+  +'<div class="tot"><span>Total</span><span>$'+tot+'</span></div>'}
+$("list").onclick=function(e){var b=e.target.closest("[data-d]");if(!b)return;S.list=S.list.filter(function(l){return l.id!==+b.dataset.d});save();renderList()};
+
+var dl=null;
+(window.claude&&window.claude.use?window.claude.use("downloads"):Promise.resolve(null)).then(function(d){dl=d}).catch(function(){});
+$("save").hidden=false;$ ("gdl").hidden=false;
+function saveFile(filename,data){
+ if(dl)return dl.save({filename:filename,data:data});
+ var url=URL.createObjectURL(data),a=document.createElement("a");a.href=url;a.download=filename;
+ document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)}
+function loadImg(src){return new Promise(function(ok,no){var i=new Image();i.onload=function(){ok(i)};i.onerror=no;i.src=src})}
+async function renderLook(){
+  var W=900,H=1200,c=document.createElement("canvas");c.width=W;c.height=H;var x=c.getContext("2d");
+  x.fillStyle=getComputedStyle($("stage")).backgroundColor;x.fillRect(0,0,W,H);
+  if(S.photo){var k=Math.max(W/S.photo.width,H/S.photo.height);x.drawImage(S.photo,(W-S.photo.width*k)/2,(H-S.photo.height*k)/2,S.photo.width*k,S.photo.height*k)}
+  else{x.save();x.scale(3,3);x.strokeStyle="rgba(138,144,156,.8)";x.lineWidth=3;x.beginPath();x.arc(150,70,34,0,7);x.stroke();x.stroke(new Path2D("M110 125Q150 108 190 125L206 290L94 290Z M122 290L118 395M178 290L182 395"));x.restore()}
+  for(var i=0;i<S.items.length;i++){var it=S.items[i],w=W*it.s/100;
+   x.save();x.translate(W*it.x/100,H*it.y/100);x.rotate(it.r*Math.PI/180);x.scale(Math.max(.05,Math.cos(S.ry*Math.PI/180)),1);
+   x.shadowColor="rgba(0,0,0,.28)";x.shadowBlur=16;x.shadowOffsetY=10;
+   if(it.t==="photo"){var m=getM(it.m),im=await loadImg(m.src),h=w/m.ar;x.drawImage(im,-w/2,-h/2,w,h)}
+   else{x.scale(w/100,w/100);x.translate(-50,-50);var pth=new Path2D(G[it.t].d);x.fillStyle=it.c;x.fill(pth);x.lineWidth=1.8;x.lineJoin="round";x.strokeStyle="rgba(0,0,0,.4)";x.stroke(pth)}
+   x.restore()}
+  x.fillStyle="#C6F432";x.fillRect(24,H-64,236,40);x.fillStyle="#0D0F14";x.font="700 26px sans-serif";x.fillText("SimuWear3D",40,H-35);
+  return c}
+$("save").onclick=async function(){
+ if(!S.items.length){toast("Add a garment first");return}
+ try{var c=await renderLook(),blob=await new Promise(function(r){c.toBlob(r,"image/png")});if(!blob)throw 0;
+  await saveFile("simuwear3d-look.png",blob);toast("Look saved")}
+ catch(e){if(!e||e.code!=="declined")toast("Couldn’t save the image")}};
+
+/* gallery */
+try{S.looks=JSON.parse(localStorage.getItem("fr-looks")||"[]")}catch(e){}
+var gi=-1;
+function saveLooks(){try{localStorage.setItem("fr-looks",JSON.stringify(S.looks))}catch(e){toast("Gallery storage is full")}}
+$("togal").onclick=async function(){
+ if(!S.items.length){toast("Add a garment first");return}
+ try{var c=await renderLook(),t=document.createElement("canvas");t.width=450;t.height=600;t.getContext("2d").drawImage(c,0,0,450,600);
+  S.looks.unshift({id:Date.now(),img:t.toDataURL("image/jpeg",.8),ry:S.ry,bg:$("stage").style.backgroundColor||"",
+   items:S.items.filter(function(i){return i.t!=="photo"}).map(function(i){return{t:i.t,c:i.c,x:i.x,y:i.y,s:i.s,r:i.r}})});
+  S.looks=S.looks.slice(0,12);saveLooks();gi=-1;renderGal();toast("Saved to gallery")}
+ catch(e){toast("Couldn’t save the look")}};
+function renderGal(){renderGal0();renderShare()}
+function renderGal0(){
+ var g=$("galgrid"),v=$("galview");
+ if(!S.looks.length){g.hidden=false;v.hidden=true;g.innerHTML='<p class="mute" style="grid-column:1/-1">No looks yet. Build an outfit and tap Save to gallery.</p>';return}
+ if(gi<0||gi>=S.looks.length){gi=-1;v.hidden=true;g.hidden=false;g.innerHTML=S.looks.map(function(l,i){return '<button class="th" data-i="'+i+'"><img src="'+l.img+'" alt="Saved look '+(i+1)+'"></button>'}).join("");return}
+ g.hidden=true;v.hidden=false;$("gimg").src=S.looks[gi].img;$("gcnt").textContent=(gi+1)+" of "+S.looks.length}
+function step(d){gi=(gi+d+S.looks.length)%S.looks.length;renderGal()}
+$("galgrid").onclick=function(e){var b=e.target.closest(".th");if(b){gi=+b.dataset.i;renderGal()}};
+$("gprev").onclick=function(){step(-1)};$("gnext").onclick=function(){step(1)};$("gback").onclick=function(){gi=-1;renderGal()};
+$("gdel").onclick=function(){S.looks.splice(gi,1);saveLooks();gi=-1;renderGal()};
+$("gedit").onclick=function(){var l=S.looks[gi];S.items=l.items.map(function(i,k){return{id:Date.now()+k,t:i.t,c:i.c,x:i.x,y:i.y,s:i.s,r:i.r}});
+ S.ry=l.ry;$("ry").value=l.ry;$("stage").style.backgroundColor=l.bg;S.sel=null;draw();document.querySelector("nav [data-v=try]").click()};
+var sx=null;$("gimg").addEventListener("pointerdown",function(e){sx=e.clientX});
+$("gimg").addEventListener("pointerup",function(e){if(sx===null)return;var d=e.clientX-sx;sx=null;if(Math.abs(d)>50)step(d<0?1:-1)});
+function d2b(u){var q=u.split(","),b=atob(q[1]),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return new Blob([a],{type:"image/jpeg"})}
+$("gdl").onclick=async function(){try{await saveFile("simuwear3d-look-"+(gi+1)+".jpg",d2b(S.looks[gi].img));toast("Look saved")}
+ catch(e){if(!e||e.code!=="declined")toast("Couldn’t save the image")}};
+
+
+var CFG={age:"all",z:"1",hc:false,th:"auto"};
+try{Object.assign(CFG,JSON.parse(localStorage.getItem("fr-set")||"{}"))}catch(e){}
+var AGES=[["all","Everyone"],["k","Kids"],["t","Teens"],["a","Adults"],["s","Seniors 60+"]],ZS=[["1","Normal"],["1.15","Large"],["1.3","Extra large"]];
+function setCfg(){
+ try{localStorage.setItem("fr-set",JSON.stringify(CFG))}catch(e){}
+ var r=document.documentElement;r.style.setProperty("--z",CFG.z);
+ if(CFG.hc)r.setAttribute("data-hc","");else r.removeAttribute("data-hc");
+ if(CFG.th==="auto")r.removeAttribute("data-theme");else r.setAttribute("data-theme",CFG.th);
+ $("ages").innerHTML=AGES.map(function(a){return '<button class="chip" data-a="'+a[0]+'" aria-pressed="'+(CFG.age===a[0])+'">'+a[1]+'</button>'}).join("");
+ $("zs").innerHTML=ZS.map(function(a){return '<button class="chip" data-z="'+a[0]+'" aria-pressed="'+(CFG.z===a[0])+'">'+a[1]+'</button>'}).join("");
+ $("hc").setAttribute("aria-pressed",String(CFG.hc));$("th").textContent="Theme: "+{auto:"Auto",light:"Light",dark:"Dark"}[CFG.th];
+ var m=CFG.age==="k"||CFG.age==="t";$("minor").hidden=!m;$("guardrow").hidden=!m;rail();renderSty()}
+$("ages").onclick=function(e){var b=e.target.closest("[data-a]");if(b){CFG.age=b.dataset.a;setCfg()}};
+$("zs").onclick=function(e){var b=e.target.closest("[data-z]");if(b){CFG.z=b.dataset.z;setCfg()}};
+$("hc").onclick=function(){CFG.hc=!CFG.hc;setCfg()};
+$("th").onclick=function(){CFG.th={auto:"light",light:"dark",dark:"auto"}[CFG.th];setCfg()};
+
+setCfg();draw();renderSty();renderList();renderGal();
+</script>
+</body>
+</html>
