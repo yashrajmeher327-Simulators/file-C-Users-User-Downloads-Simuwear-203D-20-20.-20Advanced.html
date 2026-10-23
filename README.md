@@ -1,0 +1,2 @@
+# file-C-Users-User-Downloads-Simuwear-203D-20-20.-20Advanced.html
+**SimuWear3D** lets you try outfits on your own photo before you buy. Drag, resize, recolor and layer clothes, turn the 3D view,and save looks to a gallery. Need a second opinion? Book a stylist, send your look, and get a personal shopping list.Made for kids, teens, adults and seniors, with text and contrast options.Your photos stay on your device.
